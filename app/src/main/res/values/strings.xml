@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CarMirror</string>
+
+    <string name="btn_grant">화면 녹화 권한 허용 · 미러링 준비</string>
+    <string name="btn_stop">미러링 종료</string>
+    <string name="guide">1. 아래 버튼으로 화면 녹화 권한을 허용한다 (\"전체 화면\" 선택).\n2. 차에서 안드로이드 오토 → CarMirror를 연다.\n3. 차 화면의 \"시작\"을 누른다.\n\n주행 중에는 사용하지 말 것. 정차 중에만 사용.</string>
+
+    <string name="status_idle">대기 중: 화면 녹화 권한이 필요합니다.</string>
+    <string name="status_ready">준비됨: 차 화면에서 \"시작\"을 누르세요.</string>
+    <string name="status_waiting_car">준비됨: 안드로이드 오토 연결을 기다리는 중.</string>
+    <string name="status_mirroring">미러링 중 (%1$d×%2$d)</string>
+    <string name="status_denied">화면 녹화 권한이 거부되었습니다.</string>
+
+    <string name="notif_channel">미러링</string>
+    <string name="notif_title">CarMirror 실행 중</string>
+    <string name="notif_ready">차 화면에서 \"시작\"을 누르면 미러링됩니다.</string>
+    <string name="notif_mirroring">폰 화면을 차에 미러링하는 중</string>
+    <string name="notif_stop">종료</string>
+
+    <string name="car_start">시작</string>
+    <string name="car_stop">정지</string>
+    <string name="car_msg_need_permission">폰에서 CarMirror를 열고 화면 녹화 권한을 허용하세요</string>
+    <string name="car_msg_ready">\"시작\"을 누르면 폰 화면이 표시됩니다</string>
+    <string name="car_msg_starting">화면을 준비하는 중…</string>
+</resources>

@@ -16,6 +16,16 @@ android {
         versionName = "0.1.0"
     }
 
+    // 고정 디버그 키: PC/GitHub Actions 어디서 빌드해도 같은 서명이라 덮어쓰기 설치가 된다
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false

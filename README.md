@@ -55,6 +55,16 @@ echo "sdk.dir=$HOME/Android/Sdk" > local.properties          # macOS: $HOME/Libr
 - `compileSdk`/`targetSdk`는 36으로 되어 있다. Android 17 SDK(API 37)가 설치되어 있고 AGP가 지원하면 `app/build.gradle.kts`에서 올려도 된다.
 - 사용 버전: Gradle 8.14.3, AGP 8.13.0, Kotlin 2.2.20, Car App Library 1.7.0.
 
+### PC 없이: GitHub Actions 빌드
+
+어느 브랜치든 푸시하면 GitHub Actions(`.github/workflows/build-apk.yml`)가 APK를 만든다.
+
+1. 폰 브라우저로 GitHub 저장소 → **Releases**에서 가장 최근 `CarMirror build N`을 연다.
+2. `CarMirror-N.apk`를 받아 열고, "출처를 알 수 없는 앱 설치"를 브라우저에 허용해 설치한다.
+
+- 앱은 저장소에 들어 있는 고정 디버그 키(`app/debug.keystore`)로 서명된다. 그래서 PC에서 빌드한 APK와 Actions에서 빌드한 APK를 서로 덮어 설치할 수 있다. 개인용 디버그 키라 공개돼도 상관없지만, 이 키로 서명한 앱을 남에게 배포하지는 않는다.
+- Actions 탭의 Artifacts에도 같은 APK가 zip으로 올라간다.
+
 ## 설치
 
 폰을 USB로 PC에 연결하고 (폰에 뜨는 "USB 디버깅 허용"을 승인):

@@ -7,6 +7,7 @@ import android.media.projection.MediaProjectionConfig
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
@@ -20,6 +21,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var status: TextView
     private lateinit var installSource: TextView
+    private lateinit var lockStatus: TextView
     private lateinit var btnUpdate: Button
 
     private val bridgeListener: () -> Unit = { renderStatus() }
@@ -59,6 +61,7 @@ class MainActivity : ComponentActivity() {
         }
 
         installSource = findViewById(R.id.installSource)
+        lockStatus = findViewById(R.id.lockStatus)
         btnUpdate = findViewById(R.id.btnUpdate)
         findViewById<Button>(R.id.btnReinstall).setOnClickListener { onReinstallClicked() }
         btnUpdate.setOnClickListener { onUpdateClicked() }
@@ -67,6 +70,31 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         renderInstallSource()
+        renderLockStatus()
+    }
+
+    /**
+     * Android 15+는 폰이 잠기면 화면 녹화를 끊는다. 개발자 옵션의
+     * "화면 공유 보호 사용 중지"가 켜져 있으면 잠겨도 유지된다.
+     */
+    private fun renderLockStatus() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            lockStatus.text = getString(R.string.lock_ok)
+            return
+        }
+        val disabled = try {
+            Settings.Global.getInt(contentResolver, SCREEN_SHARE_PROTECTIONS_OFF, 0) != 0
+        } catch (e: Exception) {
+            Log.w(MirrorService.TAG, "화면 공유 보호 설정을 읽을 수 없음", e)
+            null
+        }
+        lockStatus.text = getString(
+            when (disabled) {
+                true -> R.string.lock_ok
+                false -> R.string.lock_warn
+                null -> R.string.lock_unknown
+            }
+        )
     }
 
     private fun renderInstallSource() {
@@ -112,6 +140,11 @@ class MainActivity : ComponentActivity() {
                     }
             }
         }.start()
+    }
+
+    companion object {
+        private const val SCREEN_SHARE_PROTECTIONS_OFF =
+            "disable_screen_share_protections_for_apps_and_notifications"
     }
 
     private fun toast(message: String) {

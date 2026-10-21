@@ -27,8 +27,9 @@ import androidx.core.content.IntentCompat
  * MediaProjection을 들고 있다가, 차 Surface가 있고 차에서 "시작"이 눌리면
  * VirtualDisplay(AUTO_MIRROR)의 출력을 차 Surface로 직접 연결한다.
  *
- * Android 14+에서는 MediaProjection 하나로 createVirtualDisplay를 한 번만 부를 수 있다.
- * 그래서 차 Surface가 바뀌면 VirtualDisplay를 새로 만들지 않고 resize()/setSurface()로 갈아끼운다.
+ * Android 14+에서는 MediaProjection 하나로 createVirtualDisplay를 한 번만, 그것도 권한을 받은 지
+ * 5분 안에만 부를 수 있다. 그래서 권한을 받자마자 출력 없는 VirtualDisplay를 만들어 두고,
+ * 차 Surface가 생기거나 바뀌면 resize()/setSurface()로 갈아끼운다.
  * 폰 화면과 차 화면의 비율이 다르면 시스템이 가운데 정렬 + 레터박스로 맞춰 그린다.
  */
 class MirrorService : Service() {
@@ -119,55 +120,59 @@ class MirrorService : Service() {
         }
         mp.registerCallback(projectionCallback, mainHandler)
         projection = mp
-        Log.i(TAG, "MediaProjection 획득. 차 Surface 대기")
+
+        // 권한 토큰은 받은 지 5분이 지나면 createVirtualDisplay에 쓸 수 없다 (Android 14+).
+        // 그래서 차 Surface가 없어도 지금 바로 출력 없이(null) 만들어 두고, 나중에 Surface만 끼운다.
+        val metrics = resources.displayMetrics
+        try {
+            virtualDisplay = mp.createVirtualDisplay(
+                "CarMirror",
+                metrics.widthPixels,
+                metrics.heightPixels,
+                metrics.densityDpi,
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                null,
+                displayCallback,
+                mainHandler,
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "VirtualDisplay 생성 실패", e)
+            shutdown()
+            return
+        }
+        Log.i(TAG, "MediaProjection 획득, VirtualDisplay 준비. 차 Surface 대기")
         MirrorBridge.projectionActive = true
         sync()
     }
 
     /** 현재 상태(권한, 차 Surface, 시작 버튼)에 맞춰 VirtualDisplay를 연결/분리한다. */
     private fun sync() {
-        val mp = projection ?: return
-        val car = MirrorBridge.carSurface
-        val shouldMirror = MirrorBridge.mirroringRequested && car != null && car.surface.isValid
+        if (projection == null) return
+        val car = MirrorBridge.carSurface?.takeIf { it.surface.isValid }
 
-        if (shouldMirror && car != null) {
-            attach(mp, car)
+        // Android 15+는 폰이 잠기면 화면 녹화를 끊는다. 차와 연결된 동안은 화면을 켜 둬서
+        // 자동 잠금을 막는다 (전원 버튼으로 직접 잠그면 막을 수 없다).
+        if (car != null) acquireWakeLock() else releaseWakeLock()
+
+        if (car != null && MirrorBridge.mirroringRequested) {
+            attach(car)
         } else {
             detach()
         }
         updateNotification()
     }
 
-    private fun attach(mp: MediaProjection, car: CarSurface) {
+    private fun attach(car: CarSurface) {
         if (attached == car) return
+        val vd = virtualDisplay ?: return
         try {
-            val vd = virtualDisplay
-            if (vd == null) {
-                Log.i(TAG, "VirtualDisplay 생성 ${car.width}x${car.height} @${car.dpi}dpi")
-                virtualDisplay = mp.createVirtualDisplay(
-                    "CarMirror",
-                    car.width,
-                    car.height,
-                    car.dpi,
-                    DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                    car.surface,
-                    displayCallback,
-                    mainHandler,
-                )
-            } else {
-                Log.i(TAG, "VirtualDisplay 재연결 ${car.width}x${car.height} @${car.dpi}dpi")
-                vd.resize(car.width, car.height, car.dpi)
-                vd.surface = car.surface
-            }
+            Log.i(TAG, "차 화면 연결 ${car.width}x${car.height} @${car.dpi}dpi")
+            vd.resize(car.width, car.height, car.dpi)
+            vd.surface = car.surface
             attached = car
-            acquireWakeLock()
             MirrorBridge.mirroring = true
-        } catch (e: SecurityException) {
-            // 권한 토큰이 만료/재사용된 경우. 폰에서 다시 허용해야 한다.
-            Log.e(TAG, "VirtualDisplay 생성 거부됨. 권한을 다시 허용해야 함", e)
-            shutdown()
         } catch (e: Exception) {
-            Log.e(TAG, "VirtualDisplay 연결 실패", e)
+            Log.e(TAG, "차 화면 연결 실패", e)
             detach()
         }
     }
@@ -178,7 +183,6 @@ class MirrorService : Service() {
             virtualDisplay?.surface = null
             attached = null
         }
-        releaseWakeLock()
         MirrorBridge.mirroring = false
     }
 
@@ -187,6 +191,7 @@ class MirrorService : Service() {
         val mp = projection
         projection = null
         detach()
+        releaseWakeLock()
         virtualDisplay?.release()
         virtualDisplay = null
         mp?.let {
@@ -210,7 +215,7 @@ class MirrorService : Service() {
         super.onDestroy()
     }
 
-    // 미러링 중에는 폰 화면이 꺼지면 캡처가 멈추므로 화면을 켜 둔다.
+    // 폰 화면이 꺼지고 잠기면 캡처가 멈추므로 차와 연결된 동안 화면을 켜 둔다.
     // 밝기는 낮춰도 캡처 결과에는 영향이 없어서 DIM을 쓴다.
     @SuppressLint("WakelockTimeout")
     @Suppress("DEPRECATION")

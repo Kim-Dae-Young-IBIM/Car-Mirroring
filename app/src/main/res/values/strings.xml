@@ -4,7 +4,7 @@
 
     <string name="btn_grant">화면 녹화 권한 허용 · 미러링 준비</string>
     <string name="btn_stop">미러링 종료</string>
-    <string name="guide">1. 아래 버튼으로 화면 녹화 권한을 허용한다 (\"전체 화면\" 선택).\n2. 차에서 안드로이드 오토 → CarMirror를 연다.\n3. 차 화면의 \"시작\"을 누른다.\n\n주행 중에는 사용하지 말 것. 정차 중에만 사용.</string>
+    <string name="guide">1. 차에 연결한 뒤 폰 잠금을 풀고, 위 버튼으로 화면 녹화 권한을 허용한다 (\"전체 화면\" 선택).\n2. 차에서 안드로이드 오토 → CarMirror를 연다.\n3. 차 화면의 \"시작\"을 누른다.\n4. 미러링 중에는 전원 버튼으로 폰을 잠그지 않는다.\n\n주행 중에는 사용하지 말 것. 정차 중에만 사용.</string>
 
     <string name="status_idle">대기 중: 화면 녹화 권한이 필요합니다.</string>
     <string name="status_ready">준비됨: 차 화면에서 \"시작\"을 누르세요.</string>
@@ -20,17 +20,21 @@
 
     <string name="car_start">시작</string>
     <string name="car_stop">정지</string>
-    <string name="car_msg_need_permission">폰에서 CarMirror를 열고 화면 녹화 권한을 허용하세요</string>
+    <string name="car_msg_need_permission">폰 잠금을 풀고 CarMirror에서 화면 녹화 권한을 허용하세요</string>
     <string name="car_msg_ready">\"시작\"을 누르면 폰 화면이 표시됩니다</string>
     <string name="car_msg_starting">화면을 준비하는 중…</string>
+
+    <string name="lock_ok">잠금 시 동작: 폰이 잠겨도 미러링 유지 ✅</string>
+    <string name="lock_warn">잠금 시 동작: 폰이 잠기면 미러링이 끊김 ⚠️\n차에 연결한 뒤 권한을 허용하고, 미러링 중에는 폰을 잠그지 말 것. 잠겨도 유지하려면 개발자 옵션 → \"화면 공유 보호 사용 중지\"를 켠다 (화면 공유 시 알림·비밀번호 가림 기능이 꺼짐).</string>
+    <string name="lock_unknown">잠금 시 동작: 확인 불가. 폰이 잠기면 미러링이 끊길 수 있음</string>
 
     <string name="install_title">안드로이드 오토 표시용 설치</string>
     <string name="install_ok">설치 출처: Play 스토어로 기록됨 ✅\n(설치: %1$s / 요청: %2$s)</string>
     <string name="install_not_ok">설치 출처: 직접 설치 ⚠️ 안드로이드 오토 목록에 안 보일 수 있음\n(설치: %1$s / 요청: %2$s)</string>
     <string name="btn_reinstall">설치 출처 고치기 (현재 버전 다시 설치)</string>
     <string name="btn_update">최신 빌드 받아서 설치</string>
-    <string name="install_guide">버튼을 누르면 시스템 설치 화면이 뜬다. "업데이트"를 누르면 앱이 닫히고 다시 설치된다. 앱을 다시 열어 위 표시가 ✅인지 확인한 뒤, 안드로이드 오토를 강제 중지하고 런처 맞춤설정을 확인한다. 앞으로 업데이트는 "최신 빌드 받아서 설치"로 한다 (브라우저로 받아 설치하면 기록이 다시 바뀐다).</string>
-    <string name="install_need_permission">CarMirror에 "이 출처 허용"을 켠 뒤 다시 누르세요.</string>
+    <string name="install_guide">버튼을 누르면 시스템 설치 화면이 뜬다. \"업데이트\"를 누르면 앱이 닫히고 다시 설치된다. 앱을 다시 열어 위 표시가 ✅인지 확인한 뒤, 안드로이드 오토를 강제 중지하고 런처 맞춤설정을 확인한다. 앞으로 업데이트는 \"최신 빌드 받아서 설치\"로 한다 (브라우저로 받아 설치하면 기록이 다시 바뀐다).</string>
+    <string name="install_need_permission">CarMirror에 \"이 출처 허용\"을 켠 뒤 다시 누르세요.</string>
     <string name="install_downloading">최신 빌드 받는 중…</string>
     <string name="install_failed">실패: %1$s</string>
 </resources>

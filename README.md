@@ -76,6 +76,18 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 또는 한 번에: `./gradlew installDebug`
 
+### 안드로이드 오토 목록에 안 보일 때
+
+최근 안드로이드 오토(17.x)는 "알 수 없는 소스"를 켜도 직접 설치한 Car App Library 앱을 숨길 수 있다.
+안드로이드 오토는 앱을 누가 설치했는지 확인하는데, APK를 직접 설치하면 이 검사를 통과하지 못하기 때문이다.
+해결하려면 APK를 **King Installer**(Shizuku 방식)로 설치해, 설치 기록이 플레이스토어(`com.android.vending`)로 남게 한다.
+업데이트도 매번 같은 방법으로 설치해야 한다. 설치 기록은 아래 명령으로 확인할 수 있다:
+
+```bash
+adb shell dumpsys package com.personal.carmirror | grep -E "installerPackageName|initiatingPackageName"
+# installerPackageName=com.android.vending 이면 정상
+```
+
 ## 사용·테스트 순서
 
 1. 폰에서 **CarMirror**를 열고 **화면 녹화 권한 허용 · 미러링 준비**를 누른다. 알림 권한도 허용하고, 녹화 범위는 **전체 화면**을 고른다.

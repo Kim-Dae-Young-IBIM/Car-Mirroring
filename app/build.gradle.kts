@@ -50,6 +50,8 @@ kotlin {
 
 dependencies {
     implementation("androidx.car.app:app:1.7.0")
+    // 안드로이드 오토(폰 연결형)용 호스트 지원
+    implementation("androidx.car.app:app-projected:1.7.0")
     implementation("androidx.core:core-ktx:1.16.0")
     implementation("androidx.activity:activity-ktx:1.10.1")
 }

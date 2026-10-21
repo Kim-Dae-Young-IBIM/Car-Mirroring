@@ -13,6 +13,10 @@
     <!-- 미러링 중 폰 화면 꺼짐 방지 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <!-- 설치 출처를 Play 스토어로 기록해 자기 자신을 다시 설치 (안드로이드 오토 런처 노출용) -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
@@ -36,6 +40,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <service
             android:name=".MirrorService"

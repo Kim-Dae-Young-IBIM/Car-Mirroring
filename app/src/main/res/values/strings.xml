@@ -23,4 +23,14 @@
     <string name="car_msg_need_permission">폰에서 CarMirror를 열고 화면 녹화 권한을 허용하세요</string>
     <string name="car_msg_ready">\"시작\"을 누르면 폰 화면이 표시됩니다</string>
     <string name="car_msg_starting">화면을 준비하는 중…</string>
+
+    <string name="install_title">안드로이드 오토 표시용 설치</string>
+    <string name="install_ok">설치 출처: Play 스토어로 기록됨 ✅\n(설치: %1$s / 요청: %2$s)</string>
+    <string name="install_not_ok">설치 출처: 직접 설치 ⚠️ 안드로이드 오토 목록에 안 보일 수 있음\n(설치: %1$s / 요청: %2$s)</string>
+    <string name="btn_reinstall">설치 출처 고치기 (현재 버전 다시 설치)</string>
+    <string name="btn_update">최신 빌드 받아서 설치</string>
+    <string name="install_guide">버튼을 누르면 시스템 설치 화면이 뜬다. "업데이트"를 누르면 앱이 닫히고 다시 설치된다. 앱을 다시 열어 위 표시가 ✅인지 확인한 뒤, 안드로이드 오토를 강제 중지하고 런처 맞춤설정을 확인한다. 앞으로 업데이트는 "최신 빌드 받아서 설치"로 한다 (브라우저로 받아 설치하면 기록이 다시 바뀐다).</string>
+    <string name="install_need_permission">CarMirror에 "이 출처 허용"을 켠 뒤 다시 누르세요.</string>
+    <string name="install_downloading">최신 빌드 받는 중…</string>
+    <string name="install_failed">실패: %1$s</string>
 </resources>

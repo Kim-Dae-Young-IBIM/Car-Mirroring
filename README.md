@@ -79,13 +79,23 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ### 안드로이드 오토 목록에 안 보일 때
 
 최근 안드로이드 오토(17.x)는 "알 수 없는 소스"를 켜도 직접 설치한 Car App Library 앱을 숨길 수 있다.
-안드로이드 오토는 앱을 누가 설치했는지 확인하는데, APK를 직접 설치하면 이 검사를 통과하지 못하기 때문이다.
-해결하려면 APK를 **King Installer**(Shizuku 방식)로 설치해, 설치 기록이 플레이스토어(`com.android.vending`)로 남게 한다.
-업데이트도 매번 같은 방법으로 설치해야 한다. 설치 기록은 아래 명령으로 확인할 수 있다:
+안드로이드 오토는 앱을 누가 설치했는지 확인하고, 설치 기록이 Play 스토어(`com.android.vending`)여야 통과한다.
+
+CarMirror 앱 아래쪽 **안드로이드 오토 표시용 설치**에서 바로 해결할 수 있다 (Shizuku·King Installer 불필요):
+
+1. 현재 설치 출처가 표시된다. ⚠️면 **설치 출처 고치기**를 누른다.
+2. 처음 한 번은 CarMirror에 "이 출처 허용"을 켜야 한다 (설정 화면이 자동으로 열림). 켠 뒤 다시 누른다.
+3. 시스템 설치 화면에서 **업데이트**를 누르면 앱이 닫히고, Play 스토어가 설치한 것으로 기록된 채 다시 설치된다.
+4. CarMirror를 다시 열어 ✅인지 확인 → 안드로이드 오토 강제 중지 → 런처 맞춤설정 확인.
+5. 앞으로 업데이트는 앱의 **최신 빌드 받아서 설치**로 한다. 브라우저로 받아 설치하면 기록이 다시 바뀐다.
+
+원리: 시스템 설치 프로그램을 띄우면서 `EXTRA_INSTALLER_PACKAGE_NAME=com.android.vending`을 넘긴다.
+새 버전 설치 프로그램(AOSP `v2/InstallRepository`)은 이 값을 받아들이지만, 예전 설치 프로그램(`InstallStart`)은 무시한다.
+그래서 기기에 따라 안 될 수 있고, 결과는 앱에 표시되는 설치 출처로 바로 확인할 수 있다.
+안 되면 King Installer(Shizuku 방식)로 설치하거나 Play 내부 테스트 트랙을 쓴다. PC에서는 아래 명령으로 확인할 수 있다:
 
 ```bash
 adb shell dumpsys package com.personal.carmirror | grep -E "installerPackageName|initiatingPackageName"
-# installerPackageName=com.android.vending 이면 정상
 ```
 
 ## 사용·테스트 순서

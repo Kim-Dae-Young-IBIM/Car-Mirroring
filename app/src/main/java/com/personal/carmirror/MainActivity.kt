@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -18,6 +19,8 @@ import androidx.core.content.ContextCompat
 class MainActivity : ComponentActivity() {
 
     private lateinit var status: TextView
+    private lateinit var installSource: TextView
+    private lateinit var btnUpdate: Button
 
     private val bridgeListener: () -> Unit = { renderStatus() }
     private var lastDenied = false
@@ -54,6 +57,65 @@ class MainActivity : ComponentActivity() {
         findViewById<Button>(R.id.btnStop).setOnClickListener {
             startService(MirrorService.stopIntent(this))
         }
+
+        installSource = findViewById(R.id.installSource)
+        btnUpdate = findViewById(R.id.btnUpdate)
+        findViewById<Button>(R.id.btnReinstall).setOnClickListener { onReinstallClicked() }
+        btnUpdate.setOnClickListener { onUpdateClicked() }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        renderInstallSource()
+    }
+
+    private fun renderInstallSource() {
+        val source = SelfInstaller.readSource(this)
+        Log.i(MirrorService.TAG, "설치 출처: installer=${source.installer} initiator=${source.initiator}")
+        installSource.text = getString(
+            if (source.isPlay) R.string.install_ok else R.string.install_not_ok,
+            source.installer ?: "-",
+            source.initiator ?: "-",
+        )
+    }
+
+    private fun onReinstallClicked() {
+        if (!SelfInstaller.ensureInstallPermission(this)) {
+            toast(getString(R.string.install_need_permission))
+            return
+        }
+        try {
+            SelfInstaller.launchInstall(this, SelfInstaller.copyInstalledApk(this))
+        } catch (e: Exception) {
+            Log.e(MirrorService.TAG, "재설치 실패", e)
+            toast(getString(R.string.install_failed, e.message))
+        }
+    }
+
+    private fun onUpdateClicked() {
+        if (!SelfInstaller.ensureInstallPermission(this)) {
+            toast(getString(R.string.install_need_permission))
+            return
+        }
+        btnUpdate.isEnabled = false
+        toast(getString(R.string.install_downloading))
+        Thread {
+            val result = runCatching { SelfInstaller.downloadLatestApk(this) }
+            runOnUiThread {
+                btnUpdate.isEnabled = true
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                result
+                    .onSuccess { (_, apk) -> SelfInstaller.launchInstall(this, apk) }
+                    .onFailure {
+                        Log.e(MirrorService.TAG, "최신 빌드 다운로드 실패", it)
+                        toast(getString(R.string.install_failed, it.message))
+                    }
+            }
+        }.start()
+    }
+
+    private fun toast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 
     override fun onStart() {

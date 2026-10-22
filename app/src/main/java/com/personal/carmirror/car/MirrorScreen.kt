@@ -26,6 +26,11 @@ import com.personal.carmirror.R
  */
 class MirrorScreen(carContext: CarContext) : Screen(carContext) {
 
+    private companion object {
+        /** 보이는 영역 폭이 이만큼 이상 줄면 미디어 카드 같은 큰 패널이 있다고 본다. */
+        const val CARD_MIN_FRACTION = 0.2f
+    }
+
     private val bridgeListener: () -> Unit = { invalidate() }
 
     private val surfaceCallback = object : SurfaceCallback {
@@ -38,6 +43,7 @@ class MirrorScreen(carContext: CarContext) : Screen(carContext) {
             }
             Log.i(TAG, "차 Surface 수신 ${container.width}x${container.height} @${container.dpi}dpi")
             MirrorBridge.carSurface = CarSurface(surface, container.width, container.height, container.dpi)
+            updateArea()
         }
 
         override fun onSurfaceDestroyed(container: SurfaceContainer) {
@@ -79,12 +85,23 @@ class MirrorScreen(carContext: CarContext) : Screen(carContext) {
     private var stableArea: Rect? = null
 
     /**
-     * 폰 화면을 그릴 영역. 고정 영역(stable)은 버튼이 나타났다 사라져도 바뀌지 않아서
-     * 화면이 들썩이지 않는다. 없으면 보이는 영역(visible)을 쓴다.
+     * 폰 화면을 그릴 영역.
+     *
+     * 고정 영역(stable)은 버튼이 나타날 수 있는 자리까지 모두 빼서 너무 작다. 그래서 차 화면 전체를
+     * 쓰되, 넓은 화면에서 오른쪽(또는 왼쪽)에 붙는 미디어 카드처럼 폭을 크게 가리는 것만 피한다.
+     * 시작/정지·이동 같은 작은 버튼은 지도 앱처럼 화면 위에 겹쳐 뜬다.
      */
     private fun updateArea() {
-        MirrorBridge.carArea = stableArea?.takeUnless { it.isEmpty }
-            ?: visibleArea?.takeUnless { it.isEmpty }
+        val car = MirrorBridge.carSurface ?: return
+        val full = Rect(0, 0, car.width, car.height)
+        val visible = visibleArea?.takeUnless { it.isEmpty }
+        val area = if (visible != null && car.width - visible.width() > car.width * CARD_MIN_FRACTION) {
+            Rect(visible.left, 0, visible.right, car.height)
+        } else {
+            full
+        }
+        Log.i(TAG, "그릴 영역 $area (보이는 $visibleArea, 고정 $stableArea, 전체 $full)")
+        MirrorBridge.carArea = area
     }
 
     init {

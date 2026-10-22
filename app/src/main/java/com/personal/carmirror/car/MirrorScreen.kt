@@ -1,5 +1,6 @@
 package com.personal.carmirror.car
 
+import android.graphics.Rect
 import android.util.Log
 import androidx.car.app.AppManager
 import androidx.car.app.CarContext
@@ -20,8 +21,8 @@ import com.personal.carmirror.MirrorService.Companion.TAG
 import com.personal.carmirror.R
 
 /**
- * 차 화면. NavigationTemplate의 지도 영역(Surface)을 MirrorBridge에 넘기고,
- * 액션 스트립의 "시작/정지" 버튼으로 미러링을 켜고 끈다.
+ * 차 화면. NavigationTemplate의 지도 영역(Surface)과 그 안의 보이는 영역, 터치 입력을
+ * MirrorBridge에 넘기고, 액션 스트립의 "시작/정지" 버튼으로 미러링을 켜고 끈다.
  */
 class MirrorScreen(carContext: CarContext) : Screen(carContext) {
 
@@ -41,10 +42,49 @@ class MirrorScreen(carContext: CarContext) : Screen(carContext) {
 
         override fun onSurfaceDestroyed(container: SurfaceContainer) {
             Log.i(TAG, "차 Surface 사라짐")
+            visibleArea = null
+            stableArea = null
+            MirrorBridge.carArea = null
             MirrorBridge.carSurface = null
         }
 
-        // 2단계(터치 조작)에서 onClick / onScroll / onFling 을 구현한다.
+        override fun onVisibleAreaChanged(visibleArea: Rect) {
+            Log.i(TAG, "차 화면 보이는 영역 $visibleArea")
+            this@MirrorScreen.visibleArea = Rect(visibleArea)
+            updateArea()
+        }
+
+        override fun onStableAreaChanged(stableArea: Rect) {
+            Log.i(TAG, "차 화면 고정 영역 $stableArea")
+            this@MirrorScreen.stableArea = Rect(stableArea)
+            updateArea()
+        }
+
+        override fun onClick(x: Float, y: Float) {
+            Log.d(TAG, "차 화면 탭 ($x, $y)")
+            MirrorBridge.input?.onClick(x, y)
+        }
+
+        override fun onScroll(distanceX: Float, distanceY: Float) {
+            MirrorBridge.input?.onScroll(distanceX, distanceY)
+        }
+
+        override fun onFling(velocityX: Float, velocityY: Float) {
+            Log.d(TAG, "차 화면 플링 ($velocityX, $velocityY)")
+            MirrorBridge.input?.onFling(velocityX, velocityY)
+        }
+    }
+
+    private var visibleArea: Rect? = null
+    private var stableArea: Rect? = null
+
+    /**
+     * 폰 화면을 그릴 영역. 고정 영역(stable)은 버튼이 나타났다 사라져도 바뀌지 않아서
+     * 화면이 들썩이지 않는다. 없으면 보이는 영역(visible)을 쓴다.
+     */
+    private fun updateArea() {
+        MirrorBridge.carArea = stableArea?.takeUnless { it.isEmpty }
+            ?: visibleArea?.takeUnless { it.isEmpty }
     }
 
     init {
@@ -58,6 +98,7 @@ class MirrorScreen(carContext: CarContext) : Screen(carContext) {
                 Log.i(TAG, "차 화면 종료 (연결 끊김 또는 앱 전환)")
                 MirrorBridge.removeListener(bridgeListener)
                 MirrorBridge.mirroringRequested = false
+                MirrorBridge.carArea = null
                 MirrorBridge.carSurface = null
             }
         })
@@ -72,6 +113,9 @@ class MirrorScreen(carContext: CarContext) : Screen(carContext) {
 
         val builder = NavigationTemplate.Builder()
             .setActionStrip(ActionStrip.Builder().addAction(toggle).build())
+            // 이동(PAN) 버튼이 있어야 호스트가 드래그(onScroll/onFling)를 앱으로 보낸다
+            .setMapActionStrip(ActionStrip.Builder().addAction(Action.PAN).build())
+            .setPanModeListener { isInPanMode -> Log.i(TAG, "이동 모드: $isInPanMode") }
 
         // 미러링 중에는 화면을 가리지 않도록 안내 카드를 숨긴다
         val message = when {

@@ -56,6 +56,20 @@
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
 
+        <!-- 차 화면 터치를 폰에 입력 (2단계). 사용자가 접근성 설정에서 직접 켠다 -->
+        <service
+            android:name=".TouchInjectorService"
+            android:exported="false"
+            android:label="@string/touch_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/touch_injector" />
+        </service>
+
         <service
             android:name=".car.MirrorCarAppService"
             android:exported="true">

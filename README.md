@@ -3,32 +3,37 @@
 폰(Galaxy S26, Android 17) 화면 전체를 안드로이드 오토 차량 화면(기아 쏘렌토 MQ4 PE, ccNC)에 그대로 미러링하는 개인용 앱.
 플레이스토어 배포 없이 내 폰에 직접 설치해서 쓴다.
 
-현재 구현 범위: **1단계 — 화면 미러링**. (2단계 터치 조작은 아직 없음)
+현재 구현 범위: **1단계 — 화면 미러링** (실차 확인 완료), **2단계 — 차 화면 터치로 폰 조작** (실차 확인 전).
 
 > ⚠️ 주행 중 영상 시청이나 폰 조작은 위험하고 도로교통법 위반이다. 정차 중에만 사용한다.
 
 ## 동작 구조
 
 ```
-[폰 화면] --MediaProjection--> [VirtualDisplay (AUTO_MIRROR)] --직접 출력--> [차 화면 Surface]
-                                       ^                                        ^
-                              MirrorService (포그라운드)        MirrorCarAppService / MirrorScreen
+[폰 화면] --MediaProjection--> [VirtualDisplay (AUTO_MIRROR)] --> [MirrorRenderer (OpenGL)] --> [차 화면 Surface]
+                                       ^                            보이는 영역에 맞춰 그림          |
+                              MirrorService (포그라운드) <---- 탭/스크롤/플링 (SurfaceCallback) -----+
+                                       |                                                          
+                              TouchInjectorService (접근성) --> 폰에 탭·스와이프 입력
                                         \_________ MirrorBridge (공유 상태) ______/
 ```
 
 | 파일 | 역할 |
 | --- | --- |
 | `car/MirrorCarAppService.kt` | 안드로이드 오토 진입점. `NAVIGATION` 카테고리라 차 화면 Surface를 받을 수 있다 |
-| `car/MirrorScreen.kt` | `NavigationTemplate` + 액션 스트립 "시작/정지". `SurfaceCallback`으로 Surface(가로·세로·dpi) 수신 |
-| `MainActivity.kt` | 폰 쪽 화면. 화면 녹화 권한(`createScreenCaptureIntent`, 전체 화면 고정) 요청 |
-| `MirrorService.kt` | `mediaProjection` 타입 포그라운드 서비스. VirtualDisplay를 차 Surface에 연결/분리, 화면 꺼짐 방지 |
-| `MirrorBridge.kt` | 차 쪽과 폰 쪽이 공유하는 상태(차 Surface, 시작 여부, 권한 여부) |
+| `car/MirrorScreen.kt` | `NavigationTemplate` + 액션 스트립 "시작/정지" + 이동(PAN) 버튼. `SurfaceCallback`으로 Surface, 보이는 영역, 터치 입력 수신 |
+| `MainActivity.kt` | 폰 쪽 화면. 화면 녹화 권한(`createScreenCaptureIntent`, 전체 화면 고정) 요청, 설정 상태 표시 |
+| `MirrorService.kt` | `mediaProjection` 타입 포그라운드 서비스. VirtualDisplay·렌더러 관리, 차 터치 → 폰 좌표 변환, 화면 꺼짐 방지 |
+| `MirrorRenderer.kt` | 폰 화면 프레임(SurfaceTexture)을 차 Surface의 보이는 영역 안에 비율 유지해 그림 (EGL/GLES2, 전용 스레드) |
+| `TouchInjectorService.kt` | 접근성 서비스. `dispatchGesture`로 폰에 탭·스와이프 입력 |
+| `MirrorBridge.kt` | 차 쪽과 폰 쪽이 공유하는 상태(차 Surface, 보이는 영역, 시작 여부, 권한 여부, 입력 전달) |
 
 구현 메모
 
-- **레터박스**: VirtualDisplay를 차 Surface 크기로 만들고 `AUTO_MIRROR`로 폰 화면을 비추면, 시스템이 비율을 유지한 채 가운데 정렬하고 남는 부분을 검게 채운다. 폰을 가로로 돌리면 차 화면을 꽉 채운다.
-- **Surface 교체**: Android 14부터 MediaProjection 하나로 VirtualDisplay를 한 번만 만들 수 있다. 그래서 차 Surface가 바뀌면 다시 만들지 않고 `resize()` + `setSurface()`로 갈아끼우고, Surface가 사라지면 `setSurface(null)`로 분리만 한다.
-- **화면 꺼짐 방지**: 실제로 미러링 중일 때만 `SCREEN_DIM_WAKE_LOCK`을 잡는다(밝기는 어둡게, 캡처 결과는 그대로).
+- **보이는 영역에 맞춤**: 넓은 화면에서 안드로이드 오토는 오른쪽에 미디어 카드를 띄우지만 앱 Surface는 그 뒤까지 포함한다. 그래서 VirtualDisplay를 차 Surface에 직접 붙이지 않고, 렌더러가 고정 영역(stable area, 없으면 visible area) 안에 비율을 유지해 최대로 그린다. 폰을 회전하면 캡처 크기(긴 변 최대 1920)를 폰 비율에 맞춰 `resize()`한다.
+- **터치**: 탭은 그린 위치(`contentRect`) 기준으로 폰 좌표로 바꿔 그대로 입력한다. 스크롤은 잘게 오는 이벤트를 80ms 모아 폰 화면 가운데에서 한 번의 드래그로, 플링은 손가락 속도 방향으로 짧고 빠른 스와이프로 입력한다. 안드로이드 오토는 멀티터치(핀치)와 길게 누르기는 앱에 보내지 않는다. 드래그는 이동(PAN) 버튼을 눌러 이동 모드에 들어가야 전달될 수 있다.
+- **토큰 재사용 제한**: Android 14부터 MediaProjection 하나로 VirtualDisplay를 한 번만, 권한을 받은 지 5분 안에만 만들 수 있다. 그래서 권한을 받자마자 출력 없는 VirtualDisplay를 만들고, 미러링할 때만 렌더러 입력 Surface를 끼운다.
+- **화면 꺼짐 방지**: 차와 연결된 동안 `SCREEN_DIM_WAKE_LOCK`을 잡는다(밝기는 어둡게, 캡처 결과는 그대로).
 - **정리**: 차 연결 끊김 → 분리 + 시작 상태 해제, 권한 거부/토큰 만료 → 서비스 종료, 알림의 "종료" 또는 앱의 "미러링 종료" → 전부 해제. 모든 단계는 `CarMirror` 태그로 로그를 남긴다.
 
 ## 사전 준비 (폰에서 한 번만)
@@ -104,13 +109,14 @@ adb shell dumpsys package com.personal.carmirror | grep -E "installerPackageName
 2. 차에 연결해 안드로이드 오토 앱 목록에서 **CarMirror**를 연다. 안 보이면 안드로이드 오토 설정 → 런처 맞춤설정에서 표시를 켠다.
 3. 차 화면 오른쪽 위의 **시작**을 누른다 → 폰 화면이 차에 뜬다. **정지**를 누르면 멈춘다.
 4. 완전히 끝내려면 폰 알림의 **종료** 또는 앱의 **미러링 종료**를 누른다.
-5. 문제가 생기면 로그를 모아서 Claude Code에 붙여 넣는다:
+5. 차 화면 터치(2단계)는 폰에서 한 번 설정한다: 앱의 **접근성 설정 열기** → 설치된 앱 → **CarMirror 차 화면 터치** 켜기. 회색으로 막혀 있으면 **앱 정보 열기** → 오른쪽 위 ⋮ → **제한된 설정 허용**을 먼저 누른다. 드래그가 안 먹으면 차 화면의 이동(십자 화살표) 버튼을 누른 뒤 드래그한다.
+6. 문제가 생기면 로그를 모아서 Claude Code에 붙여 넣는다:
 
 ```bash
 adb logcat -s CarMirror:* CarApp:* AndroidRuntime:E
 ```
 
-- [ ] 1단계: 미러링 화면이 차에 뜬다
+- [x] 1단계: 미러링 화면이 차에 뜬다 (쏘렌토 ccNC, 유선, 회전 확인)
 - [ ] 2단계: 차 화면 터치로 폰이 조작된다
 
 ## 한계와 주의사항

@@ -2,13 +2,16 @@ package com.personal.carmirror
 
 import android.Manifest
 import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.media.projection.MediaProjectionConfig
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -22,6 +25,10 @@ class MainActivity : ComponentActivity() {
     private lateinit var status: TextView
     private lateinit var installSource: TextView
     private lateinit var lockStatus: TextView
+    private lateinit var touchStatus: TextView
+    private lateinit var btnGrant: Button
+    private lateinit var btnAccessibility: Button
+    private lateinit var btnAppInfo: Button
     private lateinit var btnUpdate: Button
 
     private val bridgeListener: () -> Unit = { renderStatus() }
@@ -55,13 +62,26 @@ class MainActivity : ComponentActivity() {
         setContentView(R.layout.activity_main)
         status = findViewById(R.id.status)
 
-        findViewById<Button>(R.id.btnGrant).setOnClickListener { onGrantClicked() }
+        btnGrant = findViewById(R.id.btnGrant)
+        btnGrant.setOnClickListener { onGrantClicked() }
         findViewById<Button>(R.id.btnStop).setOnClickListener {
             startService(MirrorService.stopIntent(this))
         }
 
         installSource = findViewById(R.id.installSource)
         lockStatus = findViewById(R.id.lockStatus)
+        touchStatus = findViewById(R.id.touchStatus)
+        btnAccessibility = findViewById(R.id.btnAccessibility)
+        btnAppInfo = findViewById(R.id.btnAppInfo)
+        btnAccessibility.setOnClickListener {
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        }
+        btnAppInfo.setOnClickListener {
+            startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    .setData(Uri.parse("package:$packageName"))
+            )
+        }
         btnUpdate = findViewById(R.id.btnUpdate)
         findViewById<Button>(R.id.btnReinstall).setOnClickListener { onReinstallClicked() }
         btnUpdate.setOnClickListener { onUpdateClicked() }
@@ -71,6 +91,14 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         renderInstallSource()
         renderLockStatus()
+        renderTouchStatus()
+    }
+
+    private fun renderTouchStatus() {
+        val on = TouchInjectorService.isRunning || TouchInjectorService.isEnabledInSettings(this)
+        touchStatus.text = getString(if (on) R.string.touch_on else R.string.touch_off)
+        btnAccessibility.visibility = if (on) View.GONE else View.VISIBLE
+        btnAppInfo.visibility = if (on) View.GONE else View.VISIBLE
     }
 
     /**
@@ -185,6 +213,9 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun renderStatus() {
+        // 권한이 살아 있는 동안 다시 누르면 진행 중인 미러링이 끊기므로 막는다
+        btnGrant.isEnabled = !MirrorBridge.projectionActive
+        renderTouchStatus()
         val car = MirrorBridge.carSurface
         status.text = when {
             MirrorBridge.mirroring && car != null ->

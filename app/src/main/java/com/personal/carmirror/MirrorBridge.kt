@@ -1,5 +1,6 @@
 package com.personal.carmirror
 
+import android.graphics.Rect
 import android.os.Looper
 import android.view.Surface
 
@@ -10,6 +11,13 @@ data class CarSurface(
     val height: Int,
     val dpi: Int,
 )
+
+/** 차 화면 입력. 좌표와 값은 차 Surface 기준 픽셀. */
+interface CarInput {
+    fun onClick(x: Float, y: Float)
+    fun onScroll(distanceX: Float, distanceY: Float)
+    fun onFling(velocityX: Float, velocityY: Float)
+}
 
 /**
  * 안드로이드 오토 쪽(차 화면)과 폰 쪽(MirrorService)을 잇는 프로세스 내 공유 상태.
@@ -51,6 +59,24 @@ object MirrorBridge {
             field = value
             notifyChanged()
         }
+
+    /** 차 화면에서 폰 화면을 그릴 영역 (안드로이드 오토 카드 등에 가리지 않는 부분). */
+    var carArea: Rect? = null
+        set(value) {
+            checkMain()
+            if (field == value) return
+            field = value
+            notifyChanged()
+        }
+
+    /** 차 화면 입력(탭/스크롤/플링)을 받는 곳. MirrorService가 등록한다. */
+    var input: CarInput? = null
+
+    /** 터치 입력 접근성 서비스가 켜지거나 꺼졌을 때. */
+    fun touchEnabledChanged() {
+        checkMain()
+        notifyChanged()
+    }
 
     private val listeners = linkedSetOf<() -> Unit>()
 

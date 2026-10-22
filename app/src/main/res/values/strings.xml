@@ -28,6 +28,13 @@
     <string name="lock_warn">잠금 시 동작: 폰이 잠기면 미러링이 끊김 ⚠️\n차에 연결한 뒤 권한을 허용하고, 미러링 중에는 폰을 잠그지 말 것. 잠겨도 유지하려면 개발자 옵션 → \"화면 공유 보호 사용 중지\"를 켠다 (화면 공유 시 알림·비밀번호 가림 기능이 꺼짐).</string>
     <string name="lock_unknown">잠금 시 동작: 확인 불가. 폰이 잠기면 미러링이 끊길 수 있음</string>
 
+    <string name="touch_service_label">CarMirror 차 화면 터치</string>
+    <string name="touch_service_description">안드로이드 오토 차 화면에서 누른 위치를 폰 화면에 탭·스와이프로 입력합니다. 화면 내용은 읽지 않습니다.</string>
+    <string name="touch_on">차 화면 터치: 켜짐 ✅</string>
+    <string name="touch_off">차 화면 터치: 꺼짐 ⚠️\n아래 버튼 → 설치된 앱 → \"CarMirror 차 화면 터치\"를 켠다. 회색으로 막혀 있으면 \"앱 정보 열기\" → 오른쪽 위 ⋮ → \"제한된 설정 허용\"을 먼저 누른다.</string>
+    <string name="btn_accessibility">접근성 설정 열기</string>
+    <string name="btn_app_info">앱 정보 열기 (제한된 설정 허용)</string>
+
     <string name="install_title">안드로이드 오토 표시용 설치</string>
     <string name="install_ok">설치 출처: Play 스토어로 기록됨 ✅\n(설치: %1$s / 요청: %2$s)</string>
     <string name="install_not_ok">설치 출처: 직접 설치 ⚠️ 안드로이드 오토 목록에 안 보일 수 있음\n(설치: %1$s / 요청: %2$s)</string>

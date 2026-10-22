@@ -22,7 +22,8 @@
 | --- | --- |
 | `car/MirrorCarAppService.kt` | 안드로이드 오토 진입점. `NAVIGATION` 카테고리라 차 화면 Surface를 받을 수 있다 |
 | `car/MirrorScreen.kt` | `NavigationTemplate` + 액션 스트립 "시작/정지" + 이동(PAN) 버튼. `SurfaceCallback`으로 Surface, 보이는 영역, 터치 입력 수신 |
-| `MainActivity.kt` | 폰 쪽 화면. 화면 녹화 권한(`createScreenCaptureIntent`, 전체 화면 고정) 요청, 설정 상태 표시 |
+| `MainActivity.kt` | 폰 쪽 화면. 상태 카드 + 3단계 체크리스트 + 상태별 버튼 하나 + 설정 점검. 화면 녹화 권한(`createScreenCaptureIntent`, 전체 화면 고정) 요청 |
+| `ManageActivity.kt` | 재설치·최신 빌드 설치·접근성/잠금 설정 바로가기 (드문 유지보수) |
 | `MirrorService.kt` | `mediaProjection` 타입 포그라운드 서비스. VirtualDisplay·렌더러 관리, 차 터치 → 폰 좌표 변환, 화면 꺼짐 방지 |
 | `MirrorRenderer.kt` | 폰 화면 프레임(SurfaceTexture)을 차 Surface의 보이는 영역 안에 비율 유지해 그림 (EGL/GLES2, 전용 스레드) |
 | `TouchInjectorService.kt` | 접근성 서비스. `dispatchGesture`로 폰에 탭·스와이프 입력 |

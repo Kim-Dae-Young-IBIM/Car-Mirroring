@@ -1,47 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">CarMirror</string>
+    <string name="manage_title">관리</string>
 
-    <string name="btn_grant">화면 녹화 권한 허용 · 미러링 준비</string>
-    <string name="btn_stop">미러링 종료</string>
-    <string name="guide">1. 차에 연결한 뒤 폰 잠금을 풀고, 위 버튼으로 화면 녹화 권한을 허용한다 (\"전체 화면\" 선택).\n2. 차에서 안드로이드 오토 → CarMirror를 연다.\n3. 차 화면의 \"시작\"을 누른다.\n4. 미러링 중에는 전원 버튼으로 폰을 잠그지 않는다.\n\n주행 중에는 사용하지 말 것. 정차 중에만 사용.</string>
+    <!-- 상태 카드 -->
+    <string name="state_no_permission">화면 공유 필요</string>
+    <string name="state_no_permission_sub">한 번 허용하면 차에서 바로 시작할 수 있어요</string>
+    <string name="state_denied">허용되지 않았어요</string>
+    <string name="state_denied_sub">‘전체 화면 공유’를 골라야 미러링돼요</string>
+    <string name="state_ready">준비됨</string>
+    <string name="state_ready_sub">차에서 CarMirror를 열어 주세요</string>
+    <string name="state_car_ready">차와 연결됨</string>
+    <string name="state_car_ready_sub">차 화면의 ‘시작’을 누르세요</string>
+    <string name="state_mirroring">미러링 중</string>
+    <string name="state_mirroring_sub">차 화면에 표시하고 있어요</string>
 
-    <string name="status_idle">대기 중: 화면 녹화 권한이 필요합니다.</string>
-    <string name="status_ready">준비됨: 차 화면에서 \"시작\"을 누르세요.</string>
-    <string name="status_waiting_car">준비됨: 안드로이드 오토 연결을 기다리는 중.</string>
-    <string name="status_mirroring">미러링 중 (%1$d×%2$d)</string>
-    <string name="status_denied">화면 녹화 권한이 거부되었습니다.</string>
+    <!-- 체크리스트 -->
+    <string name="step_permission">화면 공유 허용</string>
+    <string name="step_open_car">차에서 앱 열기</string>
+    <string name="step_mirror">미러링 시작</string>
+    <string name="step_done">완료</string>
+    <string name="step_need">필요</string>
+    <string name="step_waiting">대기 중</string>
+    <string name="step_connected">연결됨</string>
+    <string name="step_showing">표시 중</string>
+    <string name="step_none">—</string>
 
-    <string name="notif_channel">미러링</string>
-    <string name="notif_title">CarMirror 실행 중</string>
-    <string name="notif_ready">차 화면에서 \"시작\"을 누르면 미러링됩니다.</string>
-    <string name="notif_mirroring">폰 화면을 차에 미러링하는 중</string>
-    <string name="notif_stop">종료</string>
+    <!-- 버튼 -->
+    <string name="btn_grant">화면 공유 허용</string>
+    <string name="btn_regrant">다시 허용</string>
+    <string name="btn_grant_hint">다음 화면에서 ‘전체 화면 공유’를 고르세요</string>
+    <string name="btn_stop_mirror">미러링 정지</string>
+    <string name="btn_end_share">공유 끝내기</string>
 
-    <string name="car_start">시작</string>
-    <string name="car_stop">정지</string>
-    <string name="car_msg_need_permission">폰 잠금을 풀고 CarMirror에서 화면 녹화 권한을 허용하세요</string>
-    <string name="car_msg_ready">\"시작\"을 누르면 폰 화면이 표시됩니다</string>
-    <string name="car_msg_starting">화면을 준비하는 중…</string>
+    <!-- 설정 점검 -->
+    <string name="check_title">설정 점검</string>
+    <string name="check_all_ok">모두 정상</string>
+    <string name="check_count">%1$d개 확인 필요</string>
+    <string name="check_aa_ok">안드로이드 오토 표시 · 정상</string>
+    <string name="check_aa_warn">안드로이드 오토에 안 보일 수 있어요</string>
+    <string name="check_lock_ok">잠금 시 유지 · 정상</string>
+    <string name="check_lock_warn">폰이 잠기면 끊겨요</string>
+    <string name="check_lock_unknown">잠금 시 동작 · 확인 불가</string>
+    <string name="check_touch_ok">차 화면 터치 · 켜짐</string>
+    <string name="check_touch_warn">차 화면 터치가 꺼져 있어요</string>
+    <string name="check_fix">고치기</string>
+    <string name="check_open">열기</string>
 
-    <string name="lock_ok">잠금 시 동작: 폰이 잠겨도 미러링 유지 ✅</string>
-    <string name="lock_warn">잠금 시 동작: 폰이 잠기면 미러링이 끊김 ⚠️\n차에 연결한 뒤 권한을 허용하고, 미러링 중에는 폰을 잠그지 말 것. 잠겨도 유지하려면 개발자 옵션 → \"화면 공유 보호 사용 중지\"를 켠다 (화면 공유 시 알림·비밀번호 가림 기능이 꺼짐).</string>
-    <string name="lock_unknown">잠금 시 동작: 확인 불가. 폰이 잠기면 미러링이 끊길 수 있음</string>
+    <!-- 팁·안전 -->
+    <string name="tip_rotate">폰을 가로로 돌리면 차 화면을 꽉 채워요</string>
+    <string name="safety">정차 중에만 사용하세요</string>
 
-    <string name="touch_service_label">CarMirror 차 화면 터치</string>
-    <string name="touch_service_description">안드로이드 오토 차 화면에서 누른 위치를 폰 화면에 탭·스와이프로 입력합니다. 화면 내용은 읽지 않습니다.</string>
+    <!-- 관리 화면 -->
+    <string name="manage_install">안드로이드 오토 표시용 설치</string>
+    <string name="manage_touch">차 화면 터치 (2단계)</string>
+    <string name="manage_lock">잠금 시 미러링 유지</string>
+    <string name="install_ok">설치 출처: Play 스토어로 기록됨 ✅\n(설치: %1$s / 요청: %2$s)</string>
+    <string name="install_not_ok">설치 출처: 직접 설치 ⚠️\n(설치: %1$s / 요청: %2$s)</string>
+    <string name="btn_reinstall">설치 출처 고치기 (현재 버전 다시 설치)</string>
+    <string name="btn_update">최신 빌드 받아서 설치</string>
+    <string name="install_need_permission">CarMirror에 \"이 출처 허용\"을 켠 뒤 다시 누르세요.</string>
+    <string name="install_downloading">최신 빌드 받는 중…</string>
+    <string name="install_failed">실패: %1$s</string>
+
     <string name="touch_on">차 화면 터치: 켜짐 ✅</string>
     <string name="touch_off">차 화면 터치: 꺼짐 ⚠️\n아래 버튼 → 설치된 앱 → \"CarMirror 차 화면 터치\"를 켠다. 회색으로 막혀 있으면 \"앱 정보 열기\" → 오른쪽 위 ⋮ → \"제한된 설정 허용\"을 먼저 누른다.</string>
     <string name="btn_accessibility">접근성 설정 열기</string>
     <string name="btn_app_info">앱 정보 열기 (제한된 설정 허용)</string>
 
-    <string name="install_title">안드로이드 오토 표시용 설치</string>
-    <string name="install_ok">설치 출처: Play 스토어로 기록됨 ✅\n(설치: %1$s / 요청: %2$s)</string>
-    <string name="install_not_ok">설치 출처: 직접 설치 ⚠️ 안드로이드 오토 목록에 안 보일 수 있음\n(설치: %1$s / 요청: %2$s)</string>
-    <string name="btn_reinstall">설치 출처 고치기 (현재 버전 다시 설치)</string>
-    <string name="btn_update">최신 빌드 받아서 설치</string>
-    <string name="install_guide">버튼을 누르면 시스템 설치 화면이 뜬다. \"업데이트\"를 누르면 앱이 닫히고 다시 설치된다. 앱을 다시 열어 위 표시가 ✅인지 확인한 뒤, 안드로이드 오토를 강제 중지하고 런처 맞춤설정을 확인한다. 앞으로 업데이트는 \"최신 빌드 받아서 설치\"로 한다 (브라우저로 받아 설치하면 기록이 다시 바뀐다).</string>
-    <string name="install_need_permission">CarMirror에 \"이 출처 허용\"을 켠 뒤 다시 누르세요.</string>
-    <string name="install_downloading">최신 빌드 받는 중…</string>
-    <string name="install_failed">실패: %1$s</string>
+    <string name="lock_ok">잠금 시 동작: 폰이 잠겨도 미러링 유지 ✅</string>
+    <string name="lock_warn">잠금 시 동작: 폰이 잠기면 미러링이 끊김 ⚠️\n개발자 옵션 → \"화면 공유 보호 사용 중지\"를 켜면 잠겨도 유지됩니다 (화면 공유 시 알림·비밀번호 가림 기능이 꺼짐).</string>
+    <string name="lock_unknown">잠금 시 동작: 확인 불가. 폰이 잠기면 미러링이 끊길 수 있음</string>
+
+    <string name="touch_service_label">CarMirror 차 화면 터치</string>
+    <string name="touch_service_description">안드로이드 오토 차 화면에서 누른 위치를 폰 화면에 탭·스와이프로 입력합니다. 화면 내용은 읽지 않습니다.</string>
+
+    <!-- 알림 -->
+    <string name="notif_channel">미러링</string>
+    <string name="notif_title_ready">준비됨</string>
+    <string name="notif_text_ready">차에서 CarMirror를 열어 주세요</string>
+    <string name="notif_title_car_ready">차와 연결됨</string>
+    <string name="notif_text_car_ready">‘시작’을 누르면 차에 표시돼요</string>
+    <string name="notif_title_mirroring">미러링 중</string>
+    <string name="notif_text_mirroring">차 화면에 표시 중 · 정차 중에만 사용</string>
+    <string name="notif_stop">공유 끝내기</string>
+
+    <!-- 차 화면 -->
+    <string name="car_start">시작</string>
+    <string name="car_stop">정지</string>
+    <string name="car_msg_need_permission">폰에서 화면 공유를 허용하세요</string>
+    <string name="car_msg_ready">‘시작’을 누르면 폰 화면이 표시됩니다</string>
+    <string name="car_msg_starting">연결하는 중…</string>
 </resources>

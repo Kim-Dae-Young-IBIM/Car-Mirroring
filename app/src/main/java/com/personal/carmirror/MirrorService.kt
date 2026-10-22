@@ -47,6 +47,8 @@ class MirrorService : Service(), CarInput {
     /** 렌더러가 지금 출력하고 있는 차 Surface. */
     private var output: CarSurface? = null
     private var wakeLock: PowerManager.WakeLock? = null
+    /** 알림 경과 시간 기준. 미러링이 아닐 때는 0. */
+    private var mirrorStartMs = 0L
     /** VirtualDisplay 크기 (폰 화면 비율, 긴 변 최대 [MAX_CAPTURE_DIM]). */
     private var captureW = 0
     private var captureH = 0
@@ -395,16 +397,29 @@ class MirrorService : Service(), CarInput {
             stopIntent(this),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
-        val text = if (MirrorBridge.mirroring) R.string.notif_mirroring else R.string.notif_ready
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+        // 상태별 제목·본문
+        val (title, text) = when {
+            MirrorBridge.mirroring -> R.string.notif_title_mirroring to R.string.notif_text_mirroring
+            MirrorBridge.carSurface != null -> R.string.notif_title_car_ready to R.string.notif_text_car_ready
+            else -> R.string.notif_title_ready to R.string.notif_text_ready
+        }
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(getString(R.string.notif_title))
+            .setContentTitle(getString(title))
             .setContentText(getString(text))
             .setContentIntent(openApp)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .addAction(0, getString(R.string.notif_stop), stop)
-            .build()
+        // 미러링 중에는 경과 시간을 표시한다
+        if (MirrorBridge.mirroring) {
+            if (mirrorStartMs == 0L) mirrorStartMs = System.currentTimeMillis()
+            builder.setUsesChronometer(true).setWhen(mirrorStartMs).setShowWhen(true)
+        } else {
+            mirrorStartMs = 0L
+            builder.setShowWhen(false)
+        }
+        return builder.build()
     }
 
     private fun updateNotification() {

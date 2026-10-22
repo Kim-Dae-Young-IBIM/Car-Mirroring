@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="48dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/checkIcon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_check_circle"
+        android:contentDescription="@null" />
+
+    <TextView
+        android:id="@+id/checkLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:textColor="@color/on_surface"
+        android:textSize="15sp" />
+
+    <Button
+        android:id="@+id/checkAction"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:background="@drawable/btn_outlined"
+        android:minWidth="0dp"
+        android:paddingHorizontal="16dp"
+        android:text="@string/check_fix"
+        android:textColor="@color/primary"
+        android:textSize="14sp"
+        android:visibility="gone" />
+</LinearLayout>
